@@ -86,15 +86,12 @@ public class UserController {
     
     @GetMapping("/userName")
     public ResponseEntity<?> getUserNameBySessionId() {
-    	Long loggedInUserId = 1L; // Replace this with the actual logged-in user ID or retrieve it from your session mechanism
+        Long userId = userSessionRepository.findStoredUserId();
 
-        UserSession loggedInUserSession = userSessionRepository.findByUserId(loggedInUserId);
+        if (userId != null) {
+            User loggedInUser = userRepo.findById(userId).orElse(null);
 
-        if (loggedInUserSession != null) {
-            User loggedInUser = userRepo.findById(loggedInUserSession.getUserId()).orElse(null);
-            
             if (loggedInUser != null) {
-                // Return user's name
                 return ResponseEntity.ok(loggedInUser.getUsername());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -102,47 +99,42 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User session not found");
         }
-        }
+    }
+
     
 
     @GetMapping("/userEmail")
     public ResponseEntity<?> getUserEmailBySessionId() {
-     	Long loggedInUserId = 1L; // Replace this with the actual logged-in user ID or retrieve it from your session mechanism
+    	  Long userId = userSessionRepository.findStoredUserId();
 
-        UserSession loggedInUserSession = userSessionRepository.findByUserId(loggedInUserId);
+          if (userId != null) {
+              User loggedInUser = userRepo.findById(userId).orElse(null);
 
-        if (loggedInUserSession != null) {
-            User loggedInUser = userRepo.findById(loggedInUserSession.getUserId()).orElse(null);
-            
-            if (loggedInUser != null) {
-                // Return user's name
-                return ResponseEntity.ok(loggedInUser.getEmail());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User session not found");
-        }
-        }
+              if (loggedInUser != null) {
+                  return ResponseEntity.ok(loggedInUser.getEmail());
+              } else {
+                  return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+              }
+          } else {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User session not found");
+          }
+      }
 
     @GetMapping("/userImage")
     public ResponseEntity<?> getUserImageBySessionId() {
-     	Long loggedInUserId = 1L; // Replace this with the actual logged-in user ID or retrieve it from your session mechanism
+    	  Long userId = userSessionRepository.findStoredUserId();
 
-        UserSession loggedInUserSession = userSessionRepository.findByUserId(loggedInUserId);
+          if (userId != null) {
+              User loggedInUser = userRepo.findById(userId).orElse(null);
 
-        if (loggedInUserSession != null) {
-            User loggedInUser = userRepo.findById(loggedInUserSession.getUserId()).orElse(null);
-            
-            if (loggedInUser != null) {
-                // Return user's name
-                return ResponseEntity.ok(loggedInUser.getImage());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User session not found");
-        }
-        }
+              if (loggedInUser != null) {
+                  return ResponseEntity.ok(loggedInUser.getImage());
+              } else {
+                  return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+              }
+          } else {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User session not found");
+          }
+      }
 
 }
