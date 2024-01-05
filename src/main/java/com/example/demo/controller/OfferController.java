@@ -22,6 +22,7 @@ import com.example.demo.model.User;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 @CrossOrigin
 @RestController
 @RequestMapping("/offers")
@@ -42,6 +43,11 @@ public class OfferController {
 	    @GetMapping("/getOffer")
 	    public List<Offer> getAllOffers() {
 	        return offerRepository.findAll();
+	    }
+	    @GetMapping("/getOffersWithDetails")
+	    public List<String> getAllOffersWithDetails() {
+	        List<String> offers = offerRepository.findDestinations();
+	        return offers;
 	    }
 
 	    @PostMapping("/addOffer")

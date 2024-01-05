@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -53,24 +54,31 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email) {
-    	System.out.println("Received email for login: " + email); // Add this line for debugging
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
+        System.out.println("Received email for login: " + email);
+       
+
         User user = userRepo.findByEmail(email);
         if (user != null) {
-            UserSession userSession = new UserSession(user, LocalDateTime.now());
-            userSessionRepo.save(userSession);
-            return ResponseEntity.ok("User session created successfully for email: " + email);
+            String storedHashedPassword = user.getPassword(); // Retrieve stored hashed password
+
+            String hashedEnteredPassword = hashPassword(password);
+            System.out.println("password: " + hashedEnteredPassword);// Hash the entered password
+
+            if (storedHashedPassword.equals(hashedEnteredPassword)) {
+                UserSession userSession = new UserSession(user, LocalDateTime.now());
+                userSessionRepo.save(userSession);
+                return ResponseEntity.ok("User session created successfully for email: " + email);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password for email: " + email);
+            }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with email " + email + " not found");
         }
     }
 
-    @Transactional
-    @DeleteMapping("/logout")
-    public String logout() {
-    	userSessionRepo.deleteAllByUserIdIsNotNull();
-        return "All user IDs deleted successfully";
-    }
+
+   
 
     private String hashPassword(String password) {
         try {
@@ -83,6 +91,23 @@ public class UserController {
         }
         return null;
     }
+    public static String decodePassword(String hashedPassword) {
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(hashedPassword);
+            return new String(decodedBytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            // Handle exceptions
+        }
+        return null;
+    }
+    @Transactional
+    @DeleteMapping("/logout")
+    public String logout() {
+    	userSessionRepo.deleteAllByUserIdIsNotNull();
+        return "All user IDs deleted successfully";
+    }
+
     
     @GetMapping("/userName")
     public ResponseEntity<?> getUserNameBySessionId() {
