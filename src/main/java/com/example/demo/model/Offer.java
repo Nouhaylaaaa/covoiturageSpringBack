@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,11 +30,49 @@ public class Offer {
 	    private Date dateDeparture;
 	    private int numberOfPassengers;
 	    private String vehicule;
+	    private double price;
+	    private Boolean book = false;
+	   
 	    @ManyToOne
 	    @JoinColumn(name = "user_id")
 	    private User user;
-	
-	   
+	    
+	    @ManyToOne
+	    @JoinColumn(name = "userBooker_id")
+	    private User userBooker =null;
+	    
+	    
+	    
+	    public User getUserBooker() {
+			return userBooker;
+		}
+
+		public void setUserBooker(User userBooker) {
+			this.userBooker = userBooker;
+		}
+
+		public Boolean getBook() {
+			return book;
+		}
+
+		public void setBook(Boolean book) {
+			this.book = book;
+		}
+
+		public String getDateDepartureAsString() {
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	        return sdf.format(this.dateDeparture);
+	    }
+	    
+	    public String getUserEmail() {
+	        return this.user != null ? this.user.getEmail() : null;
+	    }
+		public double getPrice() {
+			return price;
+		}
+		public void setPrice(double price) {
+			this.price = price;
+		}
 		public Long getId() {
 			return id;
 		}

@@ -17,11 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.repository.OfferRepo;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.UserSessionRepository;
+import com.example.demo.repository.feedbackRepo;
 import com.example.demo.model.Offer;
 import com.example.demo.model.User;
+import com.example.demo.model.Feedback;
 
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 @CrossOrigin
 @RestController
@@ -38,7 +41,7 @@ public class OfferController {
 	    private UserSessionRepository userSessionRepository;
 
 	    // Then use this repository to retrieve user session information as needed.
-
+	   
 	    
 	    @GetMapping("/getOffer")
 	    public List<Offer> getAllOffers() {
@@ -49,6 +52,40 @@ public class OfferController {
 	        List<String> offers = offerRepository.findDestinations();
 	        return offers;
 	    }
+	    
+	    @PutMapping("/{offerId}/bookSeat")
+	    public ResponseEntity<?> bookSeat(
+	            @PathVariable Long offerId,
+	            @RequestParam int bookedSeats
+	            ) {
+	        try {
+	        	Long userBookerId = userSessionRepository.findStoredUserId();
+	            Offer offer = offerRepository.findById(offerId).orElse(null);
+	            if (offer != null) {
+	                int availableSeats = offer.getNumberOfPassengers() - bookedSeats;
+	                if (availableSeats >= 0) {
+	                    offer.setNumberOfPassengers(availableSeats);
+	                    User userBooker = userRepo.findById(userBookerId).orElse(null);
+	                    offer.setUserBooker(userBooker); // Set the userBooker attribute to the booking user
+	                    offer.setBook(true);
+	                    Offer updatedOffer = offerRepository.save(offer);
+	                    return ResponseEntity.ok(updatedOffer);
+	                } else {
+	                    // Creating a JSON-like response with the error message
+	                    Map<String, String> response = new HashMap<>();
+	                    response.put("error", "Not enough available seats");
+	                    return ResponseEntity.badRequest().body(response);
+	                }
+	            } else {
+	                return ResponseEntity.notFound().build();
+	            }
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	        }
+	    }
+
+
+
 
 	    @PostMapping("/addOffer")
 	    public ResponseEntity<Offer> createOffer(@RequestBody Offer offer) {
